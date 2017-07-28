@@ -25,10 +25,10 @@ while true; do
        '$(pwd)/vodafone.csv' using 4:(\$8/1000000) title 'Upload (Mbit/s)' with lines linetype rgb 'red'
   ");
 
-  git -c $(pwd) add $(pwd)/vodafone.csv
-  git -c $(pwd) add $(pwd)/graph.png
-  git -c $(pwd) commit -m "New data $(date '+%Y-%m-%d %H:%M:%S')"
-  git -c $(pwd) push
+  git -C $(pwd) add $(pwd)/vodafone.csv
+  git -C $(pwd) add $(pwd)/graph.png
+  git -C $(pwd) commit -m "New data $(date '+%Y-%m-%d %H:%M:%S')"
+  git -C $(pwd) push
 
   sleep 300;
 done
