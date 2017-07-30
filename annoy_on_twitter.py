@@ -51,7 +51,7 @@ def annoy_vodafone(download, upload):
         request = api.request('statuses/update_with_media',
                               {'status': MESSAGE.format(download, upload)},
                               {'media[]': data})
-        print('Sent.' if request.status_code == 200 else 'Error.')
+        print('Sent.' if request.status_code == 200 else 'Error. ' + request.text)
 
 
 def main():
