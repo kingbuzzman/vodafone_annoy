@@ -17,7 +17,7 @@ PAY_FOR = {
 }
 
 MESSAGE = """
-@vodafone_es te pago por 300/300 porque me das {.2f}/{.2f}!?
+@vodafone_es te pago por 300/300 porque me das {0:.2f}/{1:.2f}!?
 
 la data esta aqui: https://github.com/kingbuzzman/vodafone_annoy
 """.strip()
