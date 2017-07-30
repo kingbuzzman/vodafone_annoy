@@ -11,7 +11,7 @@ while true; do
   gnuplot <(echo "
   set grid
   set terminal png size 700,480 font 'Gill Sans,9' rounded
-  set output '~/Desktop/graph.png'
+  set output '$(pwd)/graph.png'
   set style line 11 lc rgb '#808080' lt 1
   set border 3 back ls 11
   set tics nomirror
