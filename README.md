@@ -9,24 +9,33 @@ while true; do
   speedtest-cli --csv | awk '{print $0",'$wifi_name','$router_ping_avg'"}' >> $(pwd)/vodafone.csv;
 
   gnuplot <(echo "
-  set multiplot layout 1, 2 ;
-  set title 'Vodafone Es Conexión (ultimas 24 horas)'
-  set ylabel 'Velocidad'
-  set xlabel 'Hora'
   set grid
-  set term png
+  set terminal png size 700,480 font 'Gill Sans,9' rounded
+  set output '~/Desktop/graph.png'
+  set style line 11 lc rgb '#808080' lt 1
+  set border 3 back ls 11
+  set tics nomirror
+  set style line 12 lc rgb '#808080' lt 0 lw 1
+  set grid back ls 12
+
+  set key out vert
+  set key top left
+
+  set multiplot layout 2, 1 ;
+  set title 'Vodafone Es Conexión (ultimas 12 horas)'
+  set ylabel '(Mbit/s)'
+  set xlabel 'Hora'
   set xdata time
-  set xrange [time(0) - 86400 : time(0)]
+  set xrange [time(0) - 43200 : time(0)]
   set format x '%H:%M'
   set timefmt '%Y-%m-%dT%H:%M:%SZ'
   set datafile separator ','
-  set output '~/Desktop/graph.png'
-  plot '$(pwd)/vodafone.csv' using 4:(\$7/1000000) title 'Download (Mbit/s)' with lines linetype rgb 'blue',\
-       '$(pwd)/vodafone.csv' using 4:(\$8/1000000) title 'Upload (Mbit/s)' with lines linetype rgb 'red'
-  set title "Figure 1";
-  plot '$(pwd)/vodafone.csv' using 4:6 title 'Ping (ms)' with lines linetype rgb '#808080',\
-       '$(pwd)/vodafone.csv' using 4:10 title 'Router ping (ms)' with lines linetype rgb '#C0C0C0',\
-  unset multiplot
+  plot '$(pwd)/vodafone.csv' using 4:(\$7/1000000) title 'Download' with lines linetype rgb 'blue',\
+       '$(pwd)/vodafone.csv' using 4:(\$8/1000000) title 'Upload' with lines linetype rgb 'red'
+  set title 'Ping';
+  set ylabel '(ms)'
+  plot '$(pwd)/vodafone.csv' using 4:6 title 'Server' with lines linetype rgb 'blue',\
+       '$(pwd)/vodafone.csv' using 4:10 title 'Router' with lines linetype rgb 'red',\
   ");
 
   git -C $(pwd) add $(pwd)/vodafone.csv
