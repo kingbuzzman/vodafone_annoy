@@ -9,20 +9,24 @@ while true; do
   speedtest-cli --csv | awk '{print $0",'$wifi_name','$router_ping_avg'"}' >> $(pwd)/vodafone.csv;
 
   gnuplot <(echo "
-  set title 'Vodafone Es Conexión'
+  set multiplot layout 1, 2 ;
+  set title 'Vodafone Es Conexión (ultimas 24 horas)'
   set ylabel 'Velocidad'
   set xlabel 'Hora'
   set grid
   set term png
   set xdata time
+  set xrange [time(0) - 86400 : time(0)]
   set format x '%H:%M'
   set timefmt '%Y-%m-%dT%H:%M:%SZ'
   set datafile separator ','
-  set output '$(pwd)/graph.png'
+  set output '~/Desktop/graph.png'
+  plot '$(pwd)/vodafone.csv' using 4:(\$7/1000000) title 'Download (Mbit/s)' with lines linetype rgb 'blue',\
+       '$(pwd)/vodafone.csv' using 4:(\$8/1000000) title 'Upload (Mbit/s)' with lines linetype rgb 'red'
+  set title "Figure 1";
   plot '$(pwd)/vodafone.csv' using 4:6 title 'Ping (ms)' with lines linetype rgb '#808080',\
        '$(pwd)/vodafone.csv' using 4:10 title 'Router ping (ms)' with lines linetype rgb '#C0C0C0',\
-       '$(pwd)/vodafone.csv' using 4:(\$7/1000000) title 'Download (Mbit/s)' with lines linetype rgb 'blue',\
-       '$(pwd)/vodafone.csv' using 4:(\$8/1000000) title 'Upload (Mbit/s)' with lines linetype rgb 'red'
+  unset multiplot
   ");
 
   git -C $(pwd) add $(pwd)/vodafone.csv
