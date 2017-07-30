@@ -2,6 +2,12 @@ Mac OSX ONLY!!!!
 
 # Installation
 
+- Install [brew](https://brew.sh/)
+- Install `git` (`brew install git`)
+- Install `python` (`brew install python`)
+- Install `virtualenv` (`pip install virtualenv`)
+- Create a twitter [app](https://apps.twitter.com/), doesn't matter what you call it as long as you generate and make: <br>`CONSUMER_KEY` `CONSUMER_SECRET` `ACCESS_TOKEN_KEY` `ACCESS_TOKEN_SECRET`
+
 ```
 virtualenv venv && \
 venv/bin/pip install twitterapi && \
