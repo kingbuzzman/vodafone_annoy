@@ -26,12 +26,27 @@ printf "\n\nexport CONSUMER_KEY=$CONSUMER_KEY\nexport CONSUMER_SECRET=$CONSUMER_
 ```
 source venv/bin/activate;
 while true; do
-  # get my current wireless name
-  wifi_name=$(/Sy*/L*/Priv*/Apple8*/V*/C*/R*/airport -I | grep SSID | grep -v BSSID | tr -d ' ' | cut -d ':' -f 2)
+  # get my wireless info (agrCtlRSSI agrExtRSSI agrCtlNoise agrExtNoise state opmode lastTxRate maxRate lastAssocStatus 802.11auth linkauth BSSID SSID MCS channel)
+  wifi_info=$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | sed 's/: /|/' | tr -ds ' ' '' | cut -d '|' -f 2 | paste -sd " " -)
+  agrCtlRSSI=$(echo $wifi_info | cut -d ' ' -f 1)
+  agrExtRSSI=$(echo $wifi_info | cut -d ' ' -f 2)
+  agrCtlNoise=$(echo $wifi_info | cut -d ' ' -f 3)
+  agrExtNoise=$(echo $wifi_info | cut -d ' ' -f 4)
+  state=$(echo $wifi_info | cut -d ' ' -f 5)
+  opmode=$(echo $wifi_info | cut -d ' ' -f 6)
+  lastTxRate=$(echo $wifi_info | cut -d ' ' -f 7)
+  maxRate=$(echo $wifi_info | cut -d ' ' -f 8)
+  lastAssocStatus=$(echo $wifi_info | cut -d ' ' -f 9)
+  eightonetwoauth=$(echo $wifi_info | cut -d ' ' -f 10)
+  linkauth=$(echo $wifi_info | cut -d ' ' -f 11)
+  BSSID=$(echo $wifi_info | cut -d ' ' -f 12)
+  SSID=$(echo $wifi_info | cut -d ' ' -f 13)
+  MCS=$(echo $wifi_info | cut -d ' ' -f 14)
+  channel=$(echo $wifi_info | cut -d ' ' -f 15)
   # get my vodafone router ping average
   router_ping_avg=$(ping -c4 $(netstat -nr | grep '^default' | grep UGSc | tr -ds '\t' ' ' | cut -d ' ' -f 2) | tail -n 1 | cut -d '=' -f 2 | cut -d '/' -f 2)
   # save the speedtest data and append the wifi name and router ping
-  speedtest-cli --csv | awk '{print $0",'$wifi_name','$router_ping_avg'"}' >> $(pwd)/vodafone.csv;
+  speedtest-cli --csv | awk '{print $0",'$SSID','$router_ping_avg','$agrCtlRSSI','$agrExtRSSI','$agrCtlNoise','$agrExtNoise','$lastTxRate','$maxRate'"}' >> $(pwd)/vodafone.csv;
 
   gnuplot <(echo "
     set grid

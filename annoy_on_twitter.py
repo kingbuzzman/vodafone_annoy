@@ -56,11 +56,13 @@ def annoy_vodafone(download, upload):
     Send the tweet
     """
     api = TwitterAPI(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN_KEY, ACCESS_TOKEN_SECRET)
+    message = MESSAGE.format(download, upload)
+    print 'Sending message:', message
 
     with open('graph.png', 'rb') as image:
         data = image.read()
         request = api.request('statuses/update_with_media',
-                              {'status': MESSAGE.format(download, upload)},
+                              {'status': message},
                               {'media[]': data})
         print('Sent.' if request.status_code == 200 else 'Error. ' + request.text)
 
@@ -72,7 +74,9 @@ def main():
         last_line = [next(filerev(csvfile))]
         # parse the very last line
         server_id, server_sponsor, server_name, timestamp, \
-            server_d, ping, download, upload, wifi_name, router_ping = next(csv.reader(last_line, delimiter=','))
+            server_d, ping, download, upload, wifi_name, router_ping, \
+            agr_ctl_rssi, agr_ext_rssi, agr_ctl_noise, agr_ext_noise, \
+            last_tx_rate, max_rate = next(csv.reader(last_line, delimiter=','))
 
         # convert the values from str to float
         download = float(download)
