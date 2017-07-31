@@ -50,7 +50,7 @@ while true; do
 
   gnuplot <(echo "
     set grid
-    set terminal png size 700,480 font 'Gill Sans,9' rounded
+    set terminal png size 700,880 font 'Gill Sans,9' rounded
     set output '$(pwd)/graph.png'
     set style line 11 lc rgb '#808080' lt 1
     set border 3 back ls 11
@@ -61,7 +61,7 @@ while true; do
     set key out vert
     set key top left
 
-    set multiplot layout 2, 1 ;
+    set multiplot layout 4, 1;
     set title 'Vodafone Es Conexión (ultimas 12 horas)'
     set ylabel '(Mbit/s)'
     set xlabel 'Hora'
@@ -76,6 +76,14 @@ while true; do
     set ylabel '(ms)'
     plot '$(pwd)/vodafone.csv' using 4:6 title 'Server' with lines linetype rgb 'blue',\
          '$(pwd)/vodafone.csv' using 4:10 title 'Router' with lines linetype rgb 'red'
+     set title 'Wifi';
+     set ylabel ''
+     plot '$(pwd)/vodafone.csv' using 4:11 title 'Ctl RSSI' with lines,\
+          '$(pwd)/vodafone.csv' using 4:12 title 'Ext RSSI' with lines,\
+          '$(pwd)/vodafone.csv' using 4:13 title 'Ctl Noise' with lines,\
+          '$(pwd)/vodafone.csv' using 4:14 title 'Ext Noise' with lines
+      plot '$(pwd)/vodafone.csv' using 4:15 title 'Last TX Rate' with lines,\
+           '$(pwd)/vodafone.csv' using 4:16 title 'Max Rate' with lines
   ");
 
   # save the new data
