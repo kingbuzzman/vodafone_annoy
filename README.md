@@ -45,8 +45,20 @@ while true; do
   channel=$(echo $wifi_info | cut -d ' ' -f 15)
   # get my vodafone router ping average
   router_ping_avg=$(ping -c4 $(netstat -nr | grep '^default' | grep UGSc | tr -ds '\t' ' ' | cut -d ' ' -f 2) | tail -n 1 | cut -d '=' -f 2 | cut -d '/' -f 2)
-  # save the speedtest data and append the wifi name and router ping
-  speedtest-cli --csv | awk '{print $0",'$SSID','$router_ping_avg','$agrCtlRSSI','$agrExtRSSI','$agrCtlNoise','$agrExtNoise','$lastTxRate','$maxRate'"}' >> $(pwd)/vodafone.csv;
+  # save the speedtest data and append the wifi name and router ping -- also convert the time to local time
+  speedtest-cli --csv | awk '{print $0",'$SSID','$router_ping_avg','$agrCtlRSSI','$agrExtRSSI','$agrCtlNoise','$agrExtNoise','$lastTxRate','$maxRate'"}' | python <(cat <<EOF
+import sys, csv, datetime, re
+
+writer = csv.writer(sys.stdout)
+for line in csv.reader(sys.stdin):
+    date = re.split("[^\d]", line[3])[:-1]
+    if not date:
+        continue
+
+    line[3] = (datetime.datetime(*map(int, date)) + datetime.timedelta(hours=2)).strftime('%Y-%m-%dT%H:%M')
+    writer.writerow(line)
+EOF
+) >> $(pwd)/vodafone.csv;
 
   gnuplot <(echo "
     set grid
@@ -68,7 +80,7 @@ while true; do
     set xdata time
     set xrange [time(0) - 43200 : time(0)]
     set format x '%H:%M'
-    set timefmt '%Y-%m-%dT%H:%M:%SZ'
+    set timefmt '%Y-%m-%dT%H:%M:%S'
     set datafile separator ','
     plot '$(pwd)/vodafone.csv' using 4:(\$7/1000000) title 'Download' with lines linetype rgb 'blue',\
          '$(pwd)/vodafone.csv' using 4:(\$8/1000000) title 'Upload' with lines linetype rgb 'red'
@@ -78,11 +90,9 @@ while true; do
          '$(pwd)/vodafone.csv' using 4:10 title 'Router' with lines linetype rgb 'red'
      set title 'Wifi';
      set ylabel ''
-     plot '$(pwd)/vodafone.csv' using 4:11 title 'Ctl RSSI' with lines,\
-          '$(pwd)/vodafone.csv' using 4:12 title 'Ext RSSI' with lines,\
-          '$(pwd)/vodafone.csv' using 4:13 title 'Ctl Noise' with lines,\
-          '$(pwd)/vodafone.csv' using 4:14 title 'Ext Noise' with lines
-      plot '$(pwd)/vodafone.csv' using 4:15 title 'Last TX Rate' with lines,\
+     plot '$(pwd)/vodafone.csv' using 4:11 title 'RSSI' with lines,\
+          '$(pwd)/vodafone.csv' using 4:13 title 'Noise' with lines
+      plot '$(pwd)/vodafone.csv' using 4:15 title 'TX Rate' with lines,\
            '$(pwd)/vodafone.csv' using 4:16 title 'Max Rate' with lines
   ");
 
