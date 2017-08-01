@@ -60,7 +60,7 @@ for line in csv.reader(sys.stdin):
 EOF
 ) >> $(pwd)/vodafone.csv;
 
-  gnuplot <(echo "
+  gnuplot <(cat <<EOF
     set grid
     set terminal png size 700,880 font 'Gill Sans,9' rounded
     set output '$(pwd)/graph.png'
@@ -76,25 +76,26 @@ EOF
     set multiplot layout 4, 1;
     set title 'Vodafone Es Conexión (ultimas 12 horas)'
     set ylabel '(Mbit/s)'
-    set xlabel 'Hora'
     set xdata time
-    set xrange [time(0) - 43200 : time(0)]
+    set xlabel 'Hora'
     set format x '%H:%M'
-    set timefmt '%Y-%m-%dT%H:%M:%S'
+    set timefmt '%Y-%m-%dT%H:%M'
+    set xrange ['$(python -c 'import datetime; print (datetime.datetime.now() - datetime.timedelta(hours=12)).strftime("%Y-%m-%dT%H:%M")')' : '$(python -c 'import datetime; print datetime.datetime.now().strftime("%Y-%m-%dT%H:%M")')']
     set datafile separator ','
-    plot '$(pwd)/vodafone.csv' using 4:(\$7/1000000) title 'Download' with lines linetype rgb 'blue',\
+    plot '$(pwd)/vodafone.csv' using 4:(\$7/1000000) title 'Download' with lines linetype rgb 'blue',\\
          '$(pwd)/vodafone.csv' using 4:(\$8/1000000) title 'Upload' with lines linetype rgb 'red'
     set title 'Ping';
     set ylabel '(ms)'
-    plot '$(pwd)/vodafone.csv' using 4:6 title 'Server' with lines linetype rgb 'blue',\
+    plot '$(pwd)/vodafone.csv' using 4:6 title 'Server' with lines linetype rgb 'blue',\\
          '$(pwd)/vodafone.csv' using 4:10 title 'Router' with lines linetype rgb 'red'
      set title 'Wifi';
      set ylabel ''
-     plot '$(pwd)/vodafone.csv' using 4:11 title 'RSSI' with lines,\
+     plot '$(pwd)/vodafone.csv' using 4:11 title 'RSSI' with lines,\\
           '$(pwd)/vodafone.csv' using 4:13 title 'Noise' with lines
-      plot '$(pwd)/vodafone.csv' using 4:15 title 'TX Rate' with lines,\
+      plot '$(pwd)/vodafone.csv' using 4:15 title 'TX Rate' with lines,\\
            '$(pwd)/vodafone.csv' using 4:16 title 'Max Rate' with lines
-  ");
+EOF
+  );
 
   # save the new data
   git -C $(pwd) add $(pwd)/vodafone.csv
